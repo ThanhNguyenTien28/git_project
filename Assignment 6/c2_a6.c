@@ -1,97 +1,3 @@
-/******************************************************************************
- * FILE NAME: c2_a6.c (sort_fields)
- *
- * DESCRIPTION:
- * This program reads multiple lines from standard input and sorts them
- * based on a specified field (column).
- *
- * The program supports:
- *   -k <field_number> : select column to sort
- *   -n                : numeric sorting
- *
- * Example usage:
- *
- *   ./sort
- *      -> sort by column 1 (string)
- *
- *   ./sort -k 2
- *      -> sort by column 2 (string)
- *
- *   ./sort -n
- *      -> sort by column 1 (numeric)
- *
- *   ./sort -k 2 -n
- *      -> sort by column 2 (numeric)
- *
- *
- * CODE GUIDELINE
- *
- * 1. Follow structured programming
- * 2. Use clear function responsibilities
- * 3. Avoid global variable modification without control
- * 4. Validate command line parameters
- * 5. Free allocated memory
- * 6. Use standard library safely
- * 7. Keep functions single-purpose
- *
- *
- * FUNCTION OVERVIEW
- *
- * 1. get_field()
- *    Extract a specific column from a text line
- *
- * 2. compare_fields()
- *    Compare two lines based on selected column
- *    Supports:
- *        -k field
- *        -n numeric
- *
- * 3. main()
- *    Read input
- *    Parse arguments
- *    Sort data
- *    Print result
- *
- *
- * COMMAND LINE OPTIONS
- *
- * -k <number>
- *      Select field to sort
- *
- * -n
- *      Numeric sorting
- *
- * -k 2 -n
- *      Sort column 2 using numeric comparison
- *
- *
- * INPUT FORMAT
- *
- * Text lines separated by newline
- *
- * Example:
- *
- * A 30
- * B 10
- * C 20
- *
- *
- * OUTPUT
- *
- * Sorted lines
- *
- *
- * MEMORY RULE
- *
- * malloc() used for each line
- * free() must be called after printing
- *
- *
- * AUTHOR: Thanh Nguyen Tien
- * VERSION: 1.0
- * DATE: 2026
- ******************************************************************************/
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -100,93 +6,121 @@
 #define MAXLINES 1000 // Số dòng tối đa hỗ trợ
 #define MAXLEN 1000   // Độ dài tối đa của một dòng
 
-char *lineptr[MAXLINES];
-int numeric = 0; // Cờ sắp xếp theo số học (-n)
-int field = 1;   // Trường cần sắp xếp (mặc định là cột 1)
+/* Biến toàn cục điều khiển hành vi sắp xếp */
+char *lineptr[MAXLINES]; // Mảng các con trỏ trỏ đến từng dòng văn bản
+int numeric = 0;         // Cờ sắp xếp theo số học (-n). 0: String, 1: Numeric
+int field = 1;           // Thứ tự cột cần sắp xếp (mặc định là cột 1)
 
-/* * Hàm get_field: Trích xuất trường thứ n từ một dòng văn bản.
- * Các trường được phân cách bởi một hoặc nhiều khoảng trắng/tab.
+/**
+ * @Function: get_field
+ * @Description: Trích xuất nội dung của một cột (trường) cụ thể từ một dòng văn bản.
+ * Các trường được định nghĩa là các cụm ký tự phân cách bởi khoảng trắng hoặc tab.
+ * @Parameter: 
+ * - line: Chuỗi ký tự gốc chứa toàn bộ dòng.
+ * - n: Số thứ tự của cột muốn lấy (bắt đầu từ 1).
+ * - result: Vùng nhớ để lưu trữ nội dung cột trích xuất được.
+ * @Return: void
  */
 void get_field(char *line, int n, char *result) {
-    int i = 0, j = 0, k = 1; // k là biến đếm thứ tự trường hiện tại
+    int i = 0, j = 0, k = 1; 
     
-    // Bỏ qua các khoảng trắng ở đầu dòng
+    // Bỏ qua các khoảng trắng dư thừa ở đầu dòng
     while (isspace(line[i])) i++;
     
-    // Duyệt qua các trường cho đến khi tới trường thứ n
+    // Duyệt qua các cụm ký tự để tìm đến đúng cột thứ n
     while (line[i] != '\0' && k < n) {
-        // Đi qua hết các ký tự của trường hiện tại
+        // Bỏ qua các ký tự thuộc cột hiện tại
         while (line[i] != '\0' && !isspace(line[i])) i++;
-        // Đi qua các khoảng trắng giữa các trường
+        // Bỏ qua khoảng trắng giữa cột hiện tại và cột kế tiếp
         while (isspace(line[i])) i++;
         k++;
     }
     
-    // Copy nội dung của trường thứ n vào biến result
+    // Sao chép nội dung của cột tìm được vào biến kết quả
     while (line[i] != '\0' && !isspace(line[i])) {
         result[j++] = line[i++];
     }
-    result[j] = '\0'; // Kết thúc chuỗi
+    result[j] = '\0'; // Đảm bảo chuỗi kết quả có ký tự kết thúc
 }
 
-/* * Hàm compare_fields: Hàm so sánh tùy biến dùng cho qsort.
+/**
+ * @Function: compare_fields
+ * @Description: Hàm so sánh tùy biến (Callback) cung cấp cho hàm qsort.
+ * Hàm này sẽ trích xuất đúng cột yêu cầu từ hai dòng và so sánh chúng
+ * theo kiểu chuỗi hoặc kiểu số dựa trên tham số dòng lệnh.
+ * @Parameter: 
+ * - a: Con trỏ void trỏ tới phần tử thứ nhất (dòng 1).
+ * - b: Con trỏ void trỏ tới phần tử thứ hai (dòng 2).
+ * @Return: int - Trả về <0 nếu a < b, >0 nếu a > b, và 0 nếu bằng nhau.
  */
 int compare_fields(const void *a, const void *b) {
-    // Ép kiểu con trỏ void về con trỏ chuỗi
+    // Ép kiểu ngược từ void* về char** vì lineptr là mảng các con trỏ chuỗi
     char *s1 = *(char **)a;
     char *s2 = *(char **)b;
     char field1[MAXLEN], field2[MAXLEN];
     
-    // Lấy nội dung trường cần sắp xếp của cả 2 dòng
+    // Lấy nội dung trường cần so sánh của cả 2 dòng
     get_field(s1, field, field1);
     get_field(s2, field, field2);
     
-    // Nếu có cờ -n, chuyển chuỗi thành số thực (double) để so sánh
     if (numeric) {
+        // So sánh theo giá trị số thực nếu người dùng chọn flag -n
         double v1 = atof(field1);
         double v2 = atof(field2);
         if (v1 < v2) return -1;
         else if (v1 > v2) return 1;
         else return 0;
     } else {
-        // Nếu không, so sánh chuỗi theo từ điển (lexicographic)
+        // So sánh theo thứ tự từ điển (Lexicographic) mặc định
         return strcmp(field1, field2);
     }
 }
 
+/**
+ * @Function: main
+ * @Description: Luồng chính của chương trình: xử lý tham số dòng lệnh, 
+ * nhận dữ liệu đầu vào, thực hiện sắp xếp bằng qsort và in kết quả.
+ * @Parameter: 
+ * - argc: Số lượng tham số dòng lệnh.
+ * - argv: Mảng các chuỗi tham số (ví dụ: -n, -k).
+ * @Return: int - 0 nếu thành công.
+ */
 int main(int argc, char *argv[]) {
     int nlines = 0;
     char buffer[MAXLEN];
 
-    // Phân tích tham số dòng lệnh từ người dùng
+    // 1. Phân tích tham số (Parsing arguments)
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-n") == 0) {
-            numeric = 1; // Bật cờ sắp xếp số
+            numeric = 1; 
         } else if (strcmp(argv[i], "-k") == 0 && i + 1 < argc) {
-            field = atoi(argv[++i]); // Lấy chỉ số của trường cần sắp xếp
+            field = atoi(argv[++i]); 
         }
     }
 
-    printf("Nhap du lieu tung dong (Nhan Ctrl+D tren Linux/Mac hoac Ctrl+Z tren Windows de ket thuc):\n");
+    printf("Nhap du lieu (Ctrl+D de ket thuc):\n");
     
-    // Đọc dữ liệu đầu vào từ bàn phím (hoặc file qua pipe)
+    // 2. Nhận dữ liệu và cấp phát bộ nhớ động
     while (fgets(buffer, MAXLEN, stdin) != NULL && nlines < MAXLINES) {
-        buffer[strcspn(buffer, "\n")] = 0; // Xóa ký tự xuống dòng '\n' ở cuối
+        buffer[strcspn(buffer, "\n")] = 0; // Loại bỏ ký tự xuống dòng
         
-        // Cấp phát bộ nhớ cho từng dòng và lưu vào mảng con trỏ
-        lineptr[nlines] = malloc(strlen(buffer) + 1);
-        strcpy(lineptr[nlines], buffer);
-        nlines++;
+        // Cấp phát vùng nhớ vừa đủ cho độ dài của dòng hiện tại
+        lineptr[nlines] = (char *)malloc(strlen(buffer) + 1);
+        if (lineptr[nlines] != NULL) {
+            strcpy(lineptr[nlines], buffer);
+            nlines++;
+        }
     }
 
-    // Tiến hành sắp xếp mảng con trỏ
+    // 3. Thực hiện sắp xếp nhanh (Quick Sort)
+    // qsort sẽ gọi hàm compare_fields để quyết định thứ tự các dòng
     qsort(lineptr, nlines, sizeof(char *), compare_fields);
 
-    // In kết quả ra màn hình
-    printf("\n--- Ket qua sap xep (Sap xep theo cot %d, Kieu so: %s) ---\n", field, numeric ? "Co" : "Khong");
+    // 4. In kết quả và giải phóng bộ nhớ (Freeing memory)
+    printf("\n--- Ket qua (Cot: %d, So hoc: %s) ---\n", field, numeric ? "Co" : "Khong");
     for (int i = 0; i < nlines; i++) {
         printf("%s\n", lineptr[i]);
-        free(lineptr[i]); // Giải phóng bộ nhớ đã cấp phát
+        free(lineptr[i]); // Giải phóng bộ nhớ của từng dòng đã malloc
     }
 
     return 0;

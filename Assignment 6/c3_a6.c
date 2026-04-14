@@ -1,146 +1,21 @@
-/******************************************************************************
- * FILE NAME: postfix_expr.c
- *
- * PROGRAM DESCRIPTION
- * ----------------------------------------------------------------------------
- * This program evaluates a postfix (Reverse Polish Notation - RPN) expression
- * passed through command line arguments.
- *
- * The program uses a stack to store operands and performs arithmetic
- * operations such as:
- *
- *      +   addition
- *      -   subtraction
- *      *   multiplication ( Use x or "*" if * causes an error )
- *      /   division
- *
- *
- * USAGE
- * ----------------------------------------------------------------------------
- *
- * Compile:
- *      gcc expr.c -o expr
- *
- * Run:
- *      ./expr 2 3 4 + *
- *
- * Example:
- *      ./expr 2 3 4 + *
- *      Result: 14
- *
- *
- * IMPORTANT NOTE ABOUT "*" OPERATOR
- * ----------------------------------------------------------------------------
- *
- * In Linux/Unix terminal, the "*" character is a special wildcard symbol.
- *
- * Example:
- *      ./expr 2 3 4 + *
- *
- * The shell may expand "*" into file names in the current directory,
- * causing incorrect program behavior.
- *
- *
- * To avoid this problem, use one of the following methods:
- *
- * Method 1: Escape the character
- *      ./expr 2 3 4 + \*
- *
- * Method 2: Use quotes
- *      ./expr 2 3 4 + "*"
- *
- * Method 3: Use letter 'x' instead of '*'
- *      ./expr 2 3 4 + x
- *
- *
- * The program supports both:
- *
- *      '*'  -> multiplication
- *      'x'  -> multiplication
- *
- *
- * CODE GUIDELINE
- * ----------------------------------------------------------------------------
- *
- * 1. GENERAL RULES
- *    - Follow structured programming.
- *    - Each function performs a single task.
- *    - Avoid unnecessary global variables.
- *    - Validate command line arguments.
- *    - Handle stack overflow and underflow.
- *
- *
- * 2. STACK MANAGEMENT
- *    - push() adds a value to stack
- *    - pop() removes a value from stack
- *    - Stack size must not exceed MAXVAL
- *
- *
- * 3. ERROR HANDLING
- *    - Stack overflow must print error
- *    - Stack underflow must print error
- *    - Division by zero must stop program
- *    - Invalid operator must stop program
- *
- *
- * 4. OPERATOR RULE
- *    +   addition
- *    -   subtraction
- *    *   multiplication
- *    x   multiplication (backup operator)
- *    /   division
- *
- *
- * 5. COMMAND LINE INPUT RULE
- *    - Numbers are read using atof()
- *    - Operators are read using switch-case
- *    - Expression must be postfix
- *
- *
- * 6. MEMORY RULE
- *    - Stack uses static array
- *    - No dynamic memory allocation
- *    - Safe and predictable behavior
- *
- *
- * FUNCTION OVERVIEW
- * ----------------------------------------------------------------------------
- *
- * push(double f)
- *      Add value to stack
- *
- * pop(void)
- *      Remove and return top value
- *
- * main(int argc, char *argv[])
- *      Read arguments
- *      Process postfix expression
- *      Print result
- *
- *
- * LIMITATION
- * ----------------------------------------------------------------------------
- *
- * - Maximum stack size: 100
- * - Only basic arithmetic operations supported
- * - Input must be postfix format
- *
- *
- * AUTHOR: Thanh Nguyen Tien
- * VERSION: 1.0
- * DATE: 2026
- ******************************************************************************/
-
 #include <stdio.h>
 #include <stdlib.h> /* Cho hàm atof() */
 #include <ctype.h>
 
 #define MAXVAL 100 // Độ sâu tối đa của ngăn xếp
 
+/* Biến toàn cục phục vụ quản lý Stack */
 int sp = 0;          // Con trỏ ngăn xếp (stack pointer)
 double val[MAXVAL];  // Mảng chứa các giá trị của ngăn xếp
 
-/* Hàm đẩy một giá trị kiểu double vào đỉnh ngăn xếp */
+/**
+ * @Function: push
+ * @Description: Đẩy một giá trị kiểu thực (double) vào đỉnh ngăn xếp.
+ * Kiểm tra lỗi tràn ngăn xếp (Stack Overflow) trước khi thêm.
+ * @Parameter: 
+ * - f: Giá trị số thực cần lưu trữ.
+ * @Return: void
+ */
 void push(double f) {
     if (sp < MAXVAL) {
         val[sp++] = f;
@@ -149,7 +24,13 @@ void push(double f) {
     }
 }
 
-/* Hàm lấy và trả về giá trị ở đỉnh ngăn xếp */
+/**
+ * @Function: pop
+ * @Description: Lấy ra và trả về giá trị nằm ở đỉnh của ngăn xếp.
+ * Kiểm tra lỗi ngăn xếp rỗng (Stack Underflow) để tránh lấy sai dữ liệu.
+ * @Parameter: Không có
+ * @Return: double - Giá trị lấy được từ đỉnh ngăn xếp, trả về 0.0 nếu rỗng.
+ */
 double pop(void) {
     if (sp > 0) {
         return val[--sp];
@@ -159,35 +40,53 @@ double pop(void) {
     }
 }
 
+/**
+ * @Function: main
+ * @Description: Điểm nhập chính của chương trình. Tiếp nhận biểu thức hậu tố từ 
+ * dòng lệnh, duyệt qua từng phần tử để phân loại là toán hạng (số) hay toán tử 
+ * (+, -, *, /). Sử dụng ngăn xếp để thực hiện các phép tính trung gian.
+ * @Parameter: 
+ * - argc: Số lượng tham số truyền vào từ terminal.
+ * - argv: Mảng các chuỗi ký tự chứa các thành phần của biểu thức.
+ * @Return: int - Trả về 0 nếu tính toán thành công, 1 nếu gặp lỗi logic.
+ */
 int main(int argc, char *argv[]) {
     double op2;
     int i;
 
-    // Kiem tra neu khong co tham so truyen vao
+    // 1. Kiểm tra nếu người dùng không truyền biểu thức
     if (argc == 1) {
         printf("Su dung: expr <bieu thuc hau to>\n");
         printf("Vi du: ./expr 2 3 4 + \\*\n");
         return 1;
     }
 
-    // Duyệt qua từng argument, bắt đầu từ argv[1] (bỏ qua tên file thực thi)
+    // 2. Duyệt qua từng argument, bắt đầu từ argv[1]
     for (i = 1; i < argc; i++) {
-        // Kiểm tra xem argument là số dương, số âm hay là toán tử
+        
+        /* * Kiểm tra xem tham số là số hay toán tử:
+         * - Nếu ký tự đầu là số (isdigit).
+         * - Hoặc nếu ký tự đầu là dấu '-' và ký tự thứ hai là số (số âm).
+         */
         if (isdigit(argv[i][0]) || (argv[i][0] == '-' && isdigit(argv[i][1]))) {
             // Chuyển chuỗi thành số thực và đẩy vào ngăn xếp
             push(atof(argv[i]));
-        } else {
-            // Xử lý các phép toán
+        } 
+        else {
+            // 3. Xử lý các phép toán bằng cách lấy toán hạng từ Stack
             switch (argv[i][0]) {
                 case '+':
                     push(pop() + pop());
                     break;
                 case '*':
-                case 'x': // Hỗ trợ thêm phím 'x' đề phòng lỗi ký tự '*' trong terminal
+                case 'x': // Hỗ trợ ký tự 'x' thay cho '*' để tránh lỗi shell wildcard
                     push(pop() * pop());
                     break;
                 case '-':
-                    op2 = pop(); // Phải lấy op2 ra trước vì phép trừ không có tính giao hoán
+                    /* * Phép trừ không có tính giao hoán: 
+                     * Lấy số bị trừ (op2) ra trước, sau đó lấy số trừ và thực hiện phép tính.
+                     */
+                    op2 = pop(); 
                     push(pop() - op2);
                     break;
                 case '/':
@@ -206,7 +105,8 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    // In ra kết quả cuối cùng nằm trong ngăn xếp
+    // 4. In ra kết quả cuối cùng (phần tử còn lại duy nhất trong Stack)
     printf("Ket qua: %.8g\n", pop());
+    
     return 0;
 }
