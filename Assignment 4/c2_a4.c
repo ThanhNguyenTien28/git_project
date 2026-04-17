@@ -15,6 +15,13 @@ struct tnode
 /**
  * @Function: talloc
  * @Description: Cấp phát bộ nhớ cho một nút mới và khởi tạo các giá trị mặc định.
+ Bước 1: Sử dụng malloc để xin cấp phát vùng nhớ cho một cấu trúc tnode.
+
+Bước 2: Gán giá trị dữ liệu vào trường data.
+
+Bước 3: Khởi tạo hai con trỏ left và right bằng NULL (nút mới luôn là nút lá khi vừa tạo).
+
+Bước 4: Trả về con trỏ tới vùng nhớ vừa tạo.
  * @Parameter: 
  * - data: Giá trị số nguyên khởi tạo cho nút.
  * @Return: struct tnode* - Con trỏ tới nút vừa cấp phát.
@@ -36,6 +43,13 @@ struct tnode* talloc(int data)
  * @Function: addnode
  * @Description: Thêm một giá trị vào cây tìm kiếm nhị phân (BST) bằng đệ quy.
  * Duy trì tính chất: trái < cha < phải.
+Bước 1: Nếu cây hiện tại rỗng (root == NULL), tạo nút mới tại vị trí đó bằng hàm talloc.
+
+Bước 2: Nếu data nhỏ hơn giá trị tại root, gọi đệ quy hàm addnode cho nhánh bên trái.
+
+Bước 3: Nếu data lớn hơn hoặc bằng giá trị tại root, gọi đệ quy hàm addnode cho nhánh bên phải.
+
+Bước 4: Trả về con trỏ root đã được cập nhật liên kết. 
  * @Parameter: 
  * - root: Con trỏ tới gốc của cây hoặc cây con.
  * - data: Giá trị cần thêm.
@@ -60,6 +74,13 @@ struct tnode* addnode(struct tnode* root, int data)
 /**
  * @Function: preorder
  * @Description: Duyệt cây theo thứ tự Trước (Root -> Left -> Right).
+Bước 1: Kiểm tra điều kiện dừng: nếu nút hiện tại là NULL thì quay lại.
+
+Bước 2: Thăm (in giá trị) nút gốc trước.
+
+Bước 3: Gọi đệ quy duyệt toàn bộ nhánh trái.
+
+Bước 4: Gọi đệ quy duyệt toàn bộ nhánh phải. 
  * @Parameter: 
  * - root: Gốc của cây cần duyệt.
  * @Return: void
@@ -78,6 +99,15 @@ void preorder(struct tnode* root)
  * @Function: inorder
  * @Description: Duyệt cây theo thứ tự Giữa (Left -> Root -> Right).
  * Trong BST, cách duyệt này sẽ in ra dãy số đã được sắp xếp tăng dần.
+Bước 1: Kiểm tra điều kiện dừng: nếu nút hiện tại là NULL thì quay lại.
+
+Bước 2: Gọi đệ quy duyệt nhánh trái trước (để lấy các giá trị nhỏ hơn).
+
+Bước 3: Thăm (in giá trị) nút gốc.
+
+Bước 4: Gọi đệ quy duyệt nhánh phải (để lấy các giá trị lớn hơn).
+
+Đặc điểm: Kết quả thu được luôn là một dãy số tăng dần trong BST. 
  * @Parameter: 
  * - root: Gốc của cây cần duyệt.
  * @Return: void
@@ -97,6 +127,13 @@ void inorder(struct tnode* root)
 /**
  * @Function: deltree
  * @Description: Xóa toàn bộ cây và giải phóng bộ nhớ bằng cách duyệt Postorder (Sau).
+Bước 1: Sử dụng phương pháp duyệt Postorder (Sau): Duyệt trái -> Duyệt phải -> Xóa gốc.
+
+Bước 2: Đệ quy giải phóng nhánh trái và nhánh phải trước để không làm mất địa chỉ của các nút con.
+
+Bước 3: Gọi free(root) để giải phóng nút hiện tại sau khi các con đã được xóa.
+
+Bước 4: Tích lũy và trả về tổng số nút đã giải phóng bằng cách cộng kết quả từ các nhánh con cộng thêm 1 (nút hiện tại). 
  * @Parameter: 
  * - root: Gốc của cây cần xóa.
  * @Return: int - Tổng số lượng nút đã được giải phóng.

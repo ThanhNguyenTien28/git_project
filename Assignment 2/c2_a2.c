@@ -30,6 +30,13 @@ void reverse(char s[], int i, int j) {
  * @Parameter: 
  * - n: Số nguyên cần chuyển đổi.
  * - s[]: Mảng ký tự dùng để chứa chuỗi kết quả đầu ra.
+ 
+ * @Example: Giải thích các bước thực hiện
+Xử lý số dư (n % 10): Phép chia lấy dư cho 10 sẽ giúp bạn tách được chữ số cuối cùng. Ví dụ 123 % 10 = 3.
+
+Chuyển số thành ký tự (+ '0'): Trong bảng mã ASCII, ký tự '0' có mã là 48. Nếu bạn lấy 3 + 48, bạn sẽ được mã 51, tương ứng với ký tự '3'.
+
+Cuối cùng được 321 và dùng hàm reverse để đảo lại thành 123 ở dạng mã ASCII
  * @Return: void
  */
 void itoa_custom(int n, char s[]) {

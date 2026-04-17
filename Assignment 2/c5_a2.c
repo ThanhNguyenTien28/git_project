@@ -4,7 +4,7 @@ void show_top(void) {
     else printf("Error: Stack empty\n"); 
 }
 
-// Nhan ban phan tu dinh stack 
+// Nvoid duplicate(void) han ban phan tu dinh stack 
 void duplicate(void) {
     if (sp > 0) push(stack[sp-1]); 
     else printf("Error: Stack empty\n"); 

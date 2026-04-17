@@ -22,19 +22,19 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    /* * Kiểm tra nội dung của argv[0] (tên file thực thi).
-     * Hàm strstr tìm kiếm sự xuất hiện của chuỗi con "lower" trong argv[0].
+    /* * Kiểm tra nội dung của argv[1] 
+     * Hàm strstr tìm kiếm sự xuất hiện của chuỗi con "lower" trong argv[1].
      */
-    if (strstr(argv[0], "lower") != NULL) {
+    if (strstr(argv[1], "lower") != NULL) {
         // Vòng lặp đọc từng ký tự cho đến khi gặp EOF
         while ((c = getchar()) != EOF) {
             // Sử dụng tolower() từ thư viện ctype.h để chuyển đổi
             putchar(tolower(c)); 
         }
     } 
-    /* * Kiểm tra nếu tên chương trình có chứa chuỗi con "upper".
+    /* * Kiểm tra nếu argv[1] chứa chuỗi con "upper".
      */
-    else if (strstr(argv[0], "upper") != NULL) {
+    else if (strstr(argv[1], "upper") != NULL) {
         while ((c = getchar()) != EOF) {
             // Sử dụng toupper() từ thư viện ctype.h để chuyển đổi
             putchar(toupper(c)); 

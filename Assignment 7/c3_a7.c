@@ -1,94 +1,125 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
+/**
+ * --- CẤU HÌNH HỆ THỐNG ---
+ * MAX_SIZE: Giới hạn số lượng phần tử tối đa trong hàng đợi.
+ */
 #define MAX_SIZE 100
 
-// Cấu trúc dữ liệu bệnh nhân
+/**
+ * @Description: Định nghĩa cấu trúc dữ liệu Bệnh nhân.
+ * Trong Priority Queue, 'priority' đóng vai trò là "khóa" (key) để sắp xếp.
+ */
 typedef struct {
     char name[50];
-    int priority; // Độ ưu tiên (Ví dụ: 5 là cấp cứu, 1 là khám thường)
+    int priority; // Mức độ ưu tiên: Giá trị càng lớn càng được khám trước
 } Patient;
 
-Patient heap[MAX_SIZE]; // Mảng lưu trữ các nút của cây Heap
-int size = 0;           // Số lượng bệnh nhân hiện có
+/* Mảng lưu trữ các nút của cây Heap (Cài đặt Heap bằng mảng) */
+Patient heap[MAX_SIZE]; 
+int size = 0;           // Số lượng bệnh nhân hiện tại trong hàng đợi
 
-// Hàm hoán đổi vị trí hai phần tử
+/**
+ * @Function: swap
+ * @Description: Hoán đổi vị trí của hai bệnh nhân trong mảng heap.
+ */
 void swap(Patient *a, Patient *b) {
     Patient temp = *a;
     *a = *b;
     *b = temp;
 }
 
-// Thêm bệnh nhân mới và vun đống ngược lên (Heapify-up)
+/**
+ * @Function: push (Insert)
+ * @Description: Thêm một bệnh nhân mới vào cuối hàng đợi và thực hiện 
+ * thao tác vun đống ngược lên (Heapify-up) để duy trì tính chất Max-Heap.
+ * Độ phức tạp: O(log n).
+ * @Parameter: p - Cấu trúc dữ liệu bệnh nhân mới.
+ */
 void push(Patient p) {
     if (size >= MAX_SIZE) return;
 
-    heap[size] = p; // Đưa vào cuối hàng đợi
+    heap[size] = p; // Đưa vào vị trí cuối cùng của cây
     int i = size;
     size++;
 
-    // So sánh với nút cha (vị trí (i-1)/2). Nếu con > cha thì đổi chỗ
+    // Heapify-up: So sánh với cha (i-1)/2, nếu con > cha thì đổi chỗ
     while (i > 0 && heap[i].priority > heap[(i - 1) / 2].priority) {
         swap(&heap[i], &heap[(i - 1) / 2]);
-        i = (i - 1) / 2; // Tiếp tục kiểm tra nút cha ở tầng trên
+        i = (i - 1) / 2; 
     }
 }
 
-// Gọi bệnh nhân ưu tiên nhất khám và vun đống xuống (Heapify-down)
+/**
+ * @Function: pop (Extract-Max)
+ * @Description: Lấy ra bệnh nhân có độ ưu tiên cao nhất (nằm ở gốc heap[0]).
+ * Sau đó đưa phần tử cuối lên gốc và thực hiện vun đống xuống (Heapify-down).
+ * Độ phức tạp: O(log n).
+ */
 void pop() {
     if (size <= 0) return;
 
-    // Người ở vị trí gốc (heap[0]) luôn có ưu tiên cao nhất
+    // Phần tử heap[0] luôn là phần tử có độ ưu tiên lớn nhất trong Max-Heap
     printf("Moi benh nhan: %s (Muc uu tien: %d)\n", heap[0].name, heap[0].priority);
 
-    // Lấy phần tử cuối cùng đưa lên gốc để thay thế
+    // Thay thế gốc bằng phần tử cuối cùng
     heap[0] = heap[size - 1];
     size--;
 
-    // Duy trì tính chất Max-Heap từ gốc xuống dưới
+    // Heapify-down: Duy trì tính chất Max-Heap từ gốc xuống dưới
     int i = 0;
     while (1) {
         int largest = i;
-        int left = 2 * i + 1;  // Chỉ số con trái
-        int right = 2 * i + 2; // Chỉ số con phải
+        int left = 2 * i + 1;  // Công thức tìm con trái
+        int right = 2 * i + 2; // Công thức tìm con phải
 
-        // Tìm xem trong 3 nút (cha, con trái, con phải) nút nào có ưu tiên lớn nhất
+        // So sánh nút hiện tại với 2 nút con để tìm nút có ưu tiên lớn nhất
         if (left < size && heap[left].priority > heap[largest].priority)
             largest = left;
         if (right < size && heap[right].priority > heap[largest].priority)
             largest = right;
 
-        // Nếu cha đã là người có ưu tiên lớn nhất, kết thúc vun đống
+        // Nếu nút cha đã lớn hơn cả 2 con thì dừng lại
         if (largest == i) break;
 
         swap(&heap[i], &heap[largest]);
-        i = largest; // Tiếp tục kiểm tra tại vị trí mới sau khi đổi chỗ
+        i = largest; // Tiếp tục kiểm tra tại vị trí mới
     }
 }
 
-// Xem người đứng đầu hàng đợi
+/**
+ * @Function: peek
+ * @Description: Xem thông tin bệnh nhân ưu tiên nhất mà không xóa khỏi hàng đợi.
+ */
 void peek() {
     if (size > 0) {
-        printf("Benh nhan tiep theo: %s\n", heap[0].name);
+        printf("Benh nhan tiep theo dang cho: %s\n", heap[0].name);
     }
 }
+
+/**
+ * @Function: main
+ * @Description: Mô phỏng quy trình nhập viện và gọi khám dựa trên độ ưu tiên.
+ */
 int main() {
-    // 1. Nhập vào ít nhất 5 bệnh nhân với các mức ưu tiên khác nhau
-    Patient p1 = {"Nguyen Van A", 3}; // Uu tien thuong
-    Patient p2 = {"Tran Thi B", 5};   // Cap cuu (Cao nhat)
-    Patient p3 = {"Le Van C", 1};     // Kham nhe
-    Patient p4 = {"Pham Van D", 4};   // Uu tien cao
-    Patient p5 = {"Hoang Thi E", 2};   // Kham trung binh
+    // Khởi tạo danh sách bệnh nhân giả lập
+    Patient p1 = {"Nguyen Van A", 3}; 
+    Patient p2 = {"Tran Thi B", 5};   // Ưu tiên cao nhất (Cấp cứu)
+    Patient p3 = {"Le Van C", 1};     
+    Patient p4 = {"Pham Van D", 4};   
+    Patient p5 = {"Hoang Thi E", 2};  
 
-    printf("--- THEM BENH NHAN VAO HANG DOI ---\n");
-    push(p1); printf("Da them A, nguoi dau hang: %s\n", heap[0].name);
-    push(p2); printf("Da them B, nguoi dau hang: %s\n", heap[0].name);
-    push(p3); printf("Da them C, nguoi dau hang: %s\n", heap[0].name);
-    push(p4); printf("Da them D, nguoi dau hang: %s\n", heap[0].name);
-    push(p5); printf("Da them E, nguoi dau hang: %s\n", heap[0].name);
+    printf("--- THEM BENH NHAN VAO HANG DOI (PUSH) ---\n");
+    push(p1); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
+    push(p2); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
+    push(p3); 
+    push(p4); 
+    push(p5); 
 
-    printf("\n--- THU TU GOI KHAM (UU TIEN CAO DEN THAP) ---\n");
-    // 2. Lay lan luot tung benh nhan ra khoi hang doi
+    printf("\n--- THU TU GOI KHAM (POP) ---\n");
+    // Lấy lần lượt từng người theo độ ưu tiên từ cao xuống thấp
     while (size > 0) {
         pop();
     }
