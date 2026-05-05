@@ -42,3 +42,29 @@ void expand(char s1[], char s2[]) {
     // Đóng chuỗi đích bằng ký tự null
     s2[j] = '\0'; 
 }
+
+int main() {
+    char s1[100];
+    char s2[1000]; // Khai báo s2 lớn để tránh tràn bộ nhớ khi bung chuỗi
+
+    printf("Nhap chuoi can mo rong (vi du a-z0-9): ");
+    
+    // Nhập chuỗi từ bàn phím
+    if (fgets(s1, sizeof(s1), stdin) != NULL) {
+        
+        // Loại bỏ ký tự xuống dòng '\n' do fgets tự động thêm vào khi nhấn Enter
+        size_t len = 0;
+        while (s1[len] != '\0') len++;
+        if (len > 0 && s1[len-1] == '\n') {
+            s1[len-1] = '\0';
+        }
+
+        // Gọi hàm xử lý
+        expand(s1, s2);
+
+        // In kết quả
+        printf("Chuoi sau khi mo rong: %s\n", s2);
+    }
+
+    return 0;
+}

@@ -43,11 +43,13 @@ unsigned int hash(char* s)
     while(*s)
     {
         // Công thức băm: h_n = h_{n-1} * 31 + ký tự_n
+        //VD: chuỗi "Ab",Mã ASCII: 'A' = 65, 'b' = 98 va => h = 65 * 31 + 98 = 2113
         h = h * 31 + *s;
         s++;
     }
 
-    return h % SIZE;
+    return h % SIZE; // Trả về chỉ số nằm trong phạm vi mảng từ 0 đến 99
+                    // 2113 % 100 =13  => dữ liệu "Ab" được đặt vào arr[13] trong bảng hăm
 }
 
 /**
@@ -58,6 +60,7 @@ unsigned int hash(char* s)
  * @Parameter: 
  * - word: Từ cần tìm hoặc thêm mới.
  * @Return: struct node* - Con trỏ tới node chứa dữ liệu.
+//** Chuyển từ cần tìm sang dạng index, dò index xem có trùng index trong bảng hăm  không(có thể chứa nhiều chuỗi khác cùng index), nếu có thì so sánh các từ trong Node  với từ cần tìm không, nếu không thì thêm vào bảng hăm
  */
 struct node* lookup(char* word)
 {

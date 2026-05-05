@@ -118,9 +118,10 @@ struct node* find(struct node* head, int data)
 
     while(p != NULL)
     {
-        if(p->data == data)
+        if(p->data == data){
+        
             return p;
-
+        }
         p = p->next;
     }
 
@@ -160,12 +161,14 @@ struct node* delnode(struct node* head, struct node* pelement)
     struct node* prev = head;
 
     // Tìm node đứng ngay trước node cần xóa
-    while(prev->next != pelement)
+    while(prev->next != pelement){
         prev = prev->next;
-
+    }  
     // "Bắc cầu" qua node cần xóa
     prev->next = pelement->next;
-
+    // VD: a-b-c-d 
+    //Nút cần xóa là b tìm nút trước đó prev=a, sau đó cho prev->next = pelement->next ( là c), sau đó giải phóng nút b và được a-c-d
+    
     free(pelement); // Giải phóng bộ nhớ
 
     return head;
@@ -191,7 +194,7 @@ void freelist(struct node* head)
 
     while(p != NULL)
     {
-        struct node* temp = p;
+        struct node* temp = p; // Lưu địa chỉ nút hiện tại
         p = p->next;
         free(temp); // Giải phóng từng node
     }

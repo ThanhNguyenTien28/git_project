@@ -41,6 +41,9 @@ void swap(Patient *a, Patient *b) {
 void push(Patient p) {
     if (size >= MAX_SIZE) return;
 
+    // In thong bao ngay khi bat dau them
+    printf("Da them benh nhan %s vao danh sach\n\t\t", p.name);
+    
     heap[size] = p; // Đưa vào vị trí cuối cùng của cây
     int i = size;
     size++;
@@ -64,11 +67,15 @@ void pop() {
     // Phần tử heap[0] luôn là phần tử có độ ưu tiên lớn nhất trong Max-Heap
     printf("Moi benh nhan: %s (Muc uu tien: %d)\n", heap[0].name, heap[0].priority);
 
-    // Thay thế gốc bằng phần tử cuối cùng
-    heap[0] = heap[size - 1];
-    size--;
+    // Thay thế gốc bằng phần tử cuối cùng, sau đó thực Heapify-down  vun đống từ gốc xuống để duy trì tính chất Max-Heap
+     heap[0] = heap[size - 1];
+     size--;
+    // Việc lấy phần tử cuối cùng bù vào chỗ trống là cách nhanh nhất để thu hẹp kích thước mảng mà không phải dịch chuyển hàng loạt phần tử như trong mảng thông thường
+    // Không dùng cách này mà duyệt từ dưới lên như vun đống ngược sẽ phải kiểm tra lại toàn bộ các nút trong cây để đảm bảo tính chất Max-Heap biến độ phức tạp từ O(log n) thành O(n), tương đương việc sắp xếp lại mảng
+   
 
     // Heapify-down: Duy trì tính chất Max-Heap từ gốc xuống dưới
+   
     int i = 0;
     while (1) {
         int largest = i;
@@ -106,7 +113,7 @@ void peek() {
 int main() {
     // Khởi tạo danh sách bệnh nhân giả lập
     Patient p1 = {"Nguyen Van A", 3}; 
-    Patient p2 = {"Tran Thi B", 5};   // Ưu tiên cao nhất (Cấp cứu)
+    Patient p2 = {"Tran Thi B", 5};   // Ưu tiên cao nhất 
     Patient p3 = {"Le Van C", 1};     
     Patient p4 = {"Pham Van D", 4};   
     Patient p5 = {"Hoang Thi E", 2};  
@@ -114,9 +121,9 @@ int main() {
     printf("--- THEM BENH NHAN VAO HANG DOI (PUSH) ---\n");
     push(p1); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
     push(p2); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
-    push(p3); 
-    push(p4); 
-    push(p5); 
+    push(p3); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
+    push(p4); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
+    push(p5); printf("Nguoi uu tien nhat hien tai: %s\n", heap[0].name);
 
     printf("\n--- THU TU GOI KHAM (POP) ---\n");
     // Lấy lần lượt từng người theo độ ưu tiên từ cao xuống thấp

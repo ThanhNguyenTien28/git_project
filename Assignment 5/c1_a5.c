@@ -103,7 +103,7 @@ void apply(struct student arr[], int n, void (*fp)(struct student))
 {
     for(int i = 0; i < n; i++)
     {
-        fp(arr[i]); // Gọi hàm thông qua con trỏ hàm
+        fp(arr[i]); // sử dụng fp là con trỏ hàm, gọi hàm thông qua con trỏ hàm
     }
 }
 
@@ -141,7 +141,7 @@ int main()
 
     // Sử dụng hàm apply kết hợp với con trỏ hàm isolder để lọc dữ liệu
     printf("\n=== Students age > 20 ===\n");
-    apply(class,n,isolder);
+    apply(class,n,isolder); //fp của hàm apppy là con trỏ hàm, gọi hàm isolder để duyệt tất cả sinh viên hơn 20 tuổi trong mảng class//
 
     return 0;
 }

@@ -36,7 +36,7 @@ int htoi(char s[]) {
             digit = s[i] - 'a' + 10;
         } else if (s[i] >= 'A' && s[i] <= 'F') {
             // Nếu là chữ cái hoa 'A'-'F'
-            digit = s[i] - 'A' + 10;
+            digit = s[i] - 'A' + 10; // VD: 'B' - 'A' = 1
         } else {
             // Gặp ký tự không thuộc hệ Hex thì dừng lại
             break; 
@@ -48,4 +48,19 @@ int htoi(char s[]) {
     }
     
     return n;
+}
+
+int main(void) { 
+    
+    
+    char test1[] = "0x1A";  
+    char test2[] = "F3";    
+    char test3[] = "0Xdead";
+
+    
+    printf("Hex: %s -> Decimal: %d\n", test1, htoi(test1));
+    printf("Hex: %s -> Decimal: %d\n", test2, htoi(test2));
+    printf("Hex: %s -> Decimal: %d\n", test3, htoi(test3));
+
+    return 0; 
 }

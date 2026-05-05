@@ -1,36 +1,35 @@
-#include <stdio.h>
+#include <stdio.h>  /* Cung cấp các hàm I/O như printf */
 
-/**
- * @Function: main
- * @Description: Chương trình thực hiện đếm số lượng khoảng trắng (blanks), 
- * ký tự Tab (\t) và ký tự xuống dòng (\n) từ dữ liệu nhập vào qua stdin.
- * Chương trình tiếp tục chạy cho đến khi nhận được tín hiệu kết thúc tệp (EOF).
- * @Parameter: Không có
- * @Return: int - Trả về 0 sau khi in kết quả thống kê thành công.
- */
-int main() {
-    int c; // Biến lưu trữ mã ASCII của ký tự đọc được
-    int blanks = 0, tabs = 0, newlines = 0; // Các biến đếm khởi tạo bằng 0
-    
-    // Đọc từng ký tự cho đến khi gặp EOF (Ctrl+D trên Linux/Mac, Ctrl+Z trên Windows)
-    while ((c = getchar()) != EOF) {
-        
-        // Kiểm tra nếu là ký tự khoảng trắng (Space)
-        if (c == ' ') {
-            ++blanks;
-        } 
-        // Kiểm tra nếu là ký tự Tab
-        else if (c == '\t') {
-            ++tabs;
-        } 
-        // Kiểm tra nếu là ký tự xuống dòng
-        else if (c == '\n') {
-            ++newlines;
-        }
-    }
+int main(void) {
+  
 
-    // In kết quả thống kê ra màn hình đầu ra tiêu chuẩn
-    printf("Blanks: %d\nTabs: %d\nNewlines: %d\n", blanks, tabs, newlines);
+    /* 1. Kieu char */
+    unsigned char uc = (unsigned char)~0; /* Đảo bit 00...0 thành 11...1 để lấy giá trị max */
+    char cmax = (char)(uc >> 1);          /* Dịch phải 1 bit để bỏ bit dấu */
+    char cmin = -cmax - 1;                /* Hệ số bù 2: miền âm lớn hơn miền dương 1 đơn vị */
+    printf("char: %d to %d\n", cmin, cmax);
+    printf("unsigned char: 0 to %u\n\n", uc);
 
-    return 0;
+    /* 2. Kieu short */
+    unsigned short us = (unsigned short)~0;
+    short smax = (short)(us >> 1);
+    short smin = -smax - 1;
+    printf("short: %d to %d\n", smin, smax);
+    printf("unsigned short: 0 to %u\n\n", us);
+
+    /* 3. Kieu int */
+    unsigned int ui = (unsigned int)~0;
+    int imax = (int)(ui >> 1);
+    int imin = -imax - 1;
+    printf("int: %d to %d\n", imin, imax);
+    printf("unsigned int: 0 to %u\n\n", ui);
+
+    /* 4. Kieu long */
+    unsigned long ul = (unsigned long)~0;
+    long lmax = (long)(ul >> 1);
+    long lmin = -lmax - 1;
+    printf("long: %ld to %ld\n", lmin, lmax);
+    printf("unsigned long: 0 to %lu\n", ul);
+
+    return 0; 
 }

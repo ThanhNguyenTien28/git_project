@@ -68,8 +68,9 @@ void insert(char *name, char *phone) {
     strncpy(newNode->phone, phone, MAX_PHONE_LEN - 1);
     newNode->phone[MAX_PHONE_LEN - 1] = '\0';
 
-    newNode->next = buckets[index]; 
-    buckets[index] = newNode;
+// Kỹ thuật chèn vào đầu linked list: nút mới trỏ tới nút cũ, bucket trỏ tới nút mới
+    newNode->next = buckets[index]; //Nối nút mới với linked list
+    buckets[index] = newNode; //Đưa nút mới thêm vào thành đầu danh sách linked list
     printf("Đã thêm thành công: %s\n", name);
 }
 
@@ -110,13 +111,14 @@ void delete(char *name) {
 
     while (curr != NULL) {
         if (strcmp(curr->name, name) == 0) {
-            Node *temp = curr;
-            if (prev == NULL) {
-                // Node cần xóa nằm ngay đầu bucket
-                buckets[index] = curr->next;
-                curr = buckets[index];
-            } else {
-                // Node cần xóa nằm ở giữa hoặc cuối danh sách
+            Node *temp = curr; // Lưu tạm nút cần xóa để giải phóng sau
+            if (prev == NULL) {   // Node cần xóa nằm ngay đầu bucket
+              
+                buckets[index] = curr->next; //Nối nút sau nút hiện tại lên đầu danh sách
+                curr = buckets[index]; 
+            } else {      // Node cần xóa nằm ở giữa hoặc cuối danh sách
+            
+           // Cho prev->next bỏ qua nút curr và trỏ thẳng tới curr->next 
                 prev->next = curr->next;
                 curr = curr->next;
             }
